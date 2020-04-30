@@ -39,15 +39,13 @@ public class PersonService {
     }
 
     public PersonDTO findById(Long id) throws PersonNotFoundException {
-        Person person = personRepository.findById(id)
-                .orElseThrow(() -> new PersonNotFoundException(id));
+        Person person = verifyIfPersonExists(id);
 
         return personMapper.toDTO(person);
     }
 
     public MessageResponseDTO update(Long id, PersonDTO personDTO) throws PersonNotFoundException {
-        personRepository.findById(id)
-                .orElseThrow(() -> new PersonNotFoundException(id));
+        verifyIfPersonExists(id);
 
         Person personToUpdate = personMapper.toModel(personDTO);
         Person updatedPerson = personRepository.save(personToUpdate);
@@ -60,6 +58,16 @@ public class PersonService {
                 .builder()
                 .message(message + personId)
                 .build();
+    }
+
+    public void delete(Long id) throws PersonNotFoundException {
+        verifyIfPersonExists(id);
+        personRepository.deleteById(id);
+    }
+
+    private Person verifyIfPersonExists(Long id) throws PersonNotFoundException {
+        return personRepository.findById(id)
+                .orElseThrow(() -> new PersonNotFoundException(id));
     }
 
 
